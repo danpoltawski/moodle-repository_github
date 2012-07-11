@@ -48,19 +48,32 @@ class repository_githubtagdownload extends repository {
         // We've already set a github username.
         $username = get_user_preferences(self::PREFNAME, '');
         if (!empty($username)) {
-            $this->username = $username;
-            return true;
+            if ($this->validate_user($username)) {
+                return true;
+            }
         }
 
         // A username has been submitted from form.
         $submitted = optional_param('github_username', '', PARAM_ALPHANUM);
         if (!empty($submitted)) {
-            $this->username = $submitted;
-            set_user_preference(self::PREFNAME, $submitted);
-            return true;
+            if ($this->validate_user($submitted)) {
+                set_user_preference(self::PREFNAME, $submitted);
+                return true;
+            }
         }
 
         return false;
+    }
+
+    private function validate_user($username) {
+        $c = new curl();
+        $json = $c->get(self::APIBASE.'/users/'.$username);
+        if ($c->info['http_code'] !== 200 or empty($json)) {
+            return false;
+        }
+
+        $this->username = $username;
+        return true;
     }
 
     public function print_login() {
@@ -91,9 +104,12 @@ class repository_githubtagdownload extends repository {
         $ret = array();
         $ret['dynload'] = true;
         $ret['nosearch'] = true;
+        $ret['logouttext'] = get_string('currentuser', 'repository_githubtagdownload', $this->username);
+        $ret['path'] = array(array('name'=>get_string('repos', 'repository_githubtagdownload'), 'path'=>''));
         if (empty($path)) {
             $ret['list'] = $this->list_repositories();
         } else {
+            $ret['path'][] = array('name'=> $path, 'path'=>$path);
             $ret['list'] = $this->list_repository_tags($path);
         }
 
@@ -158,7 +174,8 @@ class repository_githubtagdownload extends repository {
             $files[] = array('title'=> $repo->name,
                 'date' => strtotime($repo->updated_at),
                 'path' => $repo->name,
-                'size' => $repo->size,
+                'size' => $repo->size*1024,
+                'shorttitle' => $repo->name.': '.$repo->description,
                 'thumbnail' => $OUTPUT->pix_url(file_folder_icon(90))->out(false),
                 'children' => array(),
             );
@@ -197,6 +214,6 @@ class repository_githubtagdownload extends repository {
         return array('application/zip');
     }
     public function supported_returntypes() {
-        return FILE_INTERNAL;
+        return FILE_INTERNAL | FILE_EXTERNAL;
     }
 }
