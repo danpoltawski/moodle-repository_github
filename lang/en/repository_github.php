@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lang strings for githubtagdownload
+ * Lang strings for github
  *
- * @package    repository_githubtagdownload
+ * @package    repository_github
  * @copyright  2012 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,7 +25,7 @@
 $string['branches'] = 'Branches';
 $string['configplugin'] = 'Configure GitHub repository';
 $string['currentuser'] = 'github user: {$a}';
-$string['githubtagdownload:view'] = 'View GitHub repository';
+$string['github:view'] = 'View GitHub repository';
 $string['pluginname'] = 'GitHub';
 $string['repos'] = 'Repositories';
 $string['tags'] = 'Tags';
