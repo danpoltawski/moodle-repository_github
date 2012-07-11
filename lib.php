@@ -17,7 +17,7 @@
 /**
  * Simple repository plugin for downloading zipballs from github tags
  *
- * @package    repository_githubtagdownload
+ * @package    repository_github
  * @copyright  2012 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,13 +26,13 @@ require_once($CFG->dirroot . '/repository/lib.php');
 /**
  * Simple repository plugin for downloading zipballs from github tags
  *
- * @package    repository_githubtagdownload
+ * @package    repository_github
  * @copyright  2012 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class repository_githubtagdownload extends repository {
+class repository_github extends repository {
     /** user preference key for username */
-    const PREFNAME = 'repository_githubtagdownload_username';
+    const PREFNAME = 'repository_github_username';
     /** Base of uri for github api requests */
     const APIBASE = 'https://api.github.com';
     /** @var string username for which we are browsing */
@@ -78,7 +78,7 @@ class repository_githubtagdownload extends repository {
 
     public function print_login() {
         $username = new stdClass();
-        $username->label = get_string('username', 'repository_githubtagdownload');
+        $username->label = get_string('username', 'repository_github');
         $username->type  = 'text';
         $username->name  = 'github_username';
         $username->value = '';
@@ -104,16 +104,74 @@ class repository_githubtagdownload extends repository {
         $ret = array();
         $ret['dynload'] = true;
         $ret['nosearch'] = true;
-        $ret['logouttext'] = get_string('currentuser', 'repository_githubtagdownload', $this->username);
-        $ret['path'] = array(array('name'=>get_string('repos', 'repository_githubtagdownload'), 'path'=>''));
+        $ret['logouttext'] = get_string('currentuser', 'repository_github', $this->username);
+        $ret['path'] = array(array('name'=>get_string('repos', 'repository_github'), 'path'=>''));
+
         if (empty($path)) {
             $ret['list'] = $this->list_repositories();
         } else {
-            $ret['path'][] = array('name'=> $path, 'path'=>$path);
-            $ret['list'] = $this->list_repository_tags($path);
+
+            $pieces = explode('/', $path);
+            $ret['path'][] = array('name'=> $pieces[0], 'path'=> $pieces[0]);
+
+            if (count($pieces) > 1) {
+
+                if ($pieces[1] === 'tags') {
+                    $ret['path'][] = array('name'=> get_string('tags', 'repository_github'), 'path'=> 'tags');
+                    $ret['list'] = $this->list_repository_tags($pieces[0]);
+                } else if ($pieces[1] === 'branches') {
+                    $ret['path'][] = array('name'=> get_string('branches', 'repository_github'), 'path'=> 'branches');
+                    $ret['list'] = $this->list_repository_branches($pieces[0]);
+                }
+            } else {
+                $ret['list'] = $this->list_repository_metafolders($pieces[0]);
+            }
         }
 
         return $ret;
+    }
+
+    private function list_repository_metafolders($repository) {
+        global $OUTPUT;
+
+        $files = array();
+        $files[] = array('title'=> 'Tags',
+            'path' =>  $repository.'/tags',
+            'thumbnail' => $OUTPUT->pix_url(file_folder_icon(90))->out(false),
+            'children' => array(),
+        );
+        $files[] = array('title'=> 'Branches',
+            'path' =>  $repository.'/branches',
+            'thumbnail' => $OUTPUT->pix_url(file_folder_icon(90))->out(false),
+            'children' => array(),
+        );
+
+        return $files;
+    }
+
+    private function list_repository_branches($reponame) {
+        global $OUTPUT;
+
+        $c = new curl();
+        $url = self::APIBASE.'/repos/'.$this->username.'/'.$reponame.'/branches';
+        $json = $c->get($url);
+
+        if ($c->info['http_code'] !== 200 or empty($json)) {
+            return array();
+        }
+        $branches = json_decode($json);
+
+        $files = array();
+        foreach ($branches as $branch) {
+            $files[] = array('title'=> $reponame.'-'.$branch->name.'.zip',
+                'thumbnail' => $OUTPUT->pix_url(file_extension_icon('download.zip', 90))->out(false),
+                'source' => self::APIBASE.'/repos/'.$this->username.'/'.$reponame.'/zipball/'.$branch->name,
+                'shorttitle' => $branch->name,
+                'url' => $branch->commit->url,
+            );
+        };
+
+        return $files;
     }
 
     /**
@@ -138,8 +196,9 @@ class repository_githubtagdownload extends repository {
         $files = array();
         foreach ($tags as $tag) {
             $files[] = array('title'=> $reponame.'-'.$tag->name.'.zip',
-                'thumbnail' => $OUTPUT->pix_url(file_extension_icon('tagdownload.zip', 90))->out(false),
+                'thumbnail' => $OUTPUT->pix_url(file_extension_icon('download.zip', 90))->out(false),
                 'source' => $tag->zipball_url,
+                'shorttitle' => $tag->name,
                 'url' => $tag->commit->url,
             );
         };

@@ -17,7 +17,7 @@
 /**
  * Plugin capabilities.
  *
- * @package    repository_githubtagdownload
+ * @package    repository_github
  * @copyright  2012 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-    'repository/githubtagdownload:view' => array(
+    'repository/github:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(

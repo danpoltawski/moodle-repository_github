@@ -22,10 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['configplugin'] = 'Configure GitHub tag downloader';
+$string['branches'] = 'Branches';
+$string['configplugin'] = 'Configure GitHub repository';
 $string['currentuser'] = 'github user: {$a}';
-$string['githubtagdownload:view'] = 'View GitHub tag downloader';
-$string['pluginname'] = 'GitHub tag downloader';
+$string['githubtagdownload:view'] = 'View GitHub repository';
+$string['pluginname'] = 'GitHub';
 $string['repos'] = 'Repositories';
+$string['tags'] = 'Tags';
 $string['username'] = 'GitHub username:';
 
