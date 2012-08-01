@@ -257,14 +257,12 @@ class repository_github extends repository {
 
         $fp = fopen($path, 'w');
         $c = new curl();
-        $c->setopt(array('CURLOPT_FOLLOWLOCATION' => true, 'CURLOPT_MAXREDIRS' => 3));
-        $result = $c->download(array(array('url' => $url, 'file'=> $fp)));
-
-        // Close file handler.
+        $result = $c->get($url, array(), array('file'=> $fp, 'followlocation' => true));
         fclose($fp);
-        if (empty($result)) {
+        if ($result !== true) {
             unlink($path);
-            return null;
+            throw new moodle_exception('repositoryerror', 'repository', '',
+                    str_replace("\n", "<br>\n", $result."\n".print_r($c->get_info(), true))); // TODO this is temporary for debugging!
         }
         return array('path'=>$path, 'url'=>$url);
     }
