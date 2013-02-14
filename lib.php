@@ -54,7 +54,7 @@ class repository_github extends repository {
         }
 
         // A username has been submitted from form.
-        $submitted = optional_param('github_username', '', PARAM_ALPHANUM);
+        $submitted = optional_param('github_username', '', PARAM_ALPHANUMEXT);
         if (!empty($submitted)) {
             if ($this->validate_user($submitted)) {
                 set_user_preference(self::PREFNAME, $submitted);
