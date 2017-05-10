@@ -137,12 +137,12 @@ class repository_github extends repository {
         $files = array();
         $files[] = array('title'=> 'Tags',
             'path' =>  $repository.'/tags',
-            'thumbnail' => $OUTPUT->pix_url(file_folder_icon(90))->out(false),
+            'thumbnail' => $this->get_icon_url(file_folder_icon(90)),
             'children' => array(),
         );
         $files[] = array('title'=> 'Branches',
             'path' =>  $repository.'/branches',
-            'thumbnail' => $OUTPUT->pix_url(file_folder_icon(90))->out(false),
+            'thumbnail' => $this->get_icon_url(file_folder_icon(90)),
             'children' => array(),
         );
 
@@ -164,7 +164,7 @@ class repository_github extends repository {
         $files = array();
         foreach ($branches as $branch) {
             $files[] = array('title'=> $reponame.'-'.$branch->name.'.zip',
-                'thumbnail' => $OUTPUT->pix_url(file_extension_icon('download.zip', 90))->out(false),
+                'thumbnail' => $this->get_icon_url(file_extension_icon('download.zip', 90)),
                 'source' => self::APIBASE.'/repos/'.$this->username.'/'.$reponame.'/zipball/'.$branch->name,
                 'shorttitle' => $branch->name,
                 'url' => $branch->commit->url,
@@ -196,7 +196,7 @@ class repository_github extends repository {
         $files = array();
         foreach ($tags as $tag) {
             $files[] = array('title'=> $reponame.'-'.$tag->name.'.zip',
-                'thumbnail' => $OUTPUT->pix_url(file_extension_icon('download.zip', 90))->out(false),
+                'thumbnail' => $this->get_icon_url(file_extension_icon('download.zip', 90)),
                 'source' => $tag->zipball_url,
                 'shorttitle' => $tag->name,
                 'url' => $tag->commit->url,
@@ -235,7 +235,7 @@ class repository_github extends repository {
                 'path' => $repo->name,
                 'size' => $repo->size*1024,
                 'shorttitle' => $repo->name.': '.$repo->description,
-                'thumbnail' => $OUTPUT->pix_url(file_folder_icon(90))->out(false),
+                'thumbnail' => $this->get_icon_url(file_folder_icon(90)),
                 'children' => array(),
             );
         };
@@ -274,5 +274,24 @@ class repository_github extends repository {
     }
     public function supported_returntypes() {
         return FILE_INTERNAL | FILE_EXTERNAL;
+    }
+
+    /**
+     * Helper function dealing with deprecation of pix_url in Moodle 3.3.
+     *
+     * In Moodle 3.3, the $OUTPUT->pix_url() has been deprecated and
+     * image_url() should be used for images, like the thumbnails in our case.
+     *
+     * @param string $iconpath relative path to the icon image representing an item
+     * @return string URL of the image
+     */
+    protected function get_icon_url($iconpath) {
+        global $CFG, $OUTPUT;
+
+        if ($CFG->branch >= 33) {
+            return $OUTPUT->image_url($iconpath)->out(false);
+        } else {
+            return $OUTPUT->pix_url($iconpath)->out(false);
+        }
     }
 }
