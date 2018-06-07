@@ -18,6 +18,7 @@
  * Lang strings for github
  *
  * @package    repository_github
+ * @category   string
  * @copyright  2012 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,6 +28,9 @@ $string['configplugin'] = 'Configure GitHub repository';
 $string['currentuser'] = 'github user: {$a}';
 $string['github:view'] = 'View GitHub repository';
 $string['pluginname'] = 'GitHub';
+$string['privacy:metadata:external:github'] = 'Allows to pick files from user\'s repositories on GitHub.';
+$string['privacy:metadata:external:github:githubusername'] = 'Username on GitHub has to be sent as a part of API request.';
+$string['privacy:metadata:preference:username'] = 'Your GitHub username.';
 $string['repos'] = 'Repositories';
 $string['tags'] = 'Tags';
 $string['username'] = 'GitHub username:';
