@@ -29,7 +29,9 @@ defined('MOODLE_INTERNAL') || die();
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
 /**
@@ -73,6 +75,14 @@ class provider implements
     }
 
     /**
+     * Get the list of users within a specific context.
+     *
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+    }
+
+    /**
      * Export personal data stored in the given contexts.
      *
      * @param approved_contextlist $contextlist List of contexts approved for export.
@@ -89,6 +99,18 @@ class provider implements
     }
 
     /**
+     * Delete multiple users within a single context.
+     *
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        $users = $userlist->get_users();
+        foreach ($users as $user) {
+            delete_user_data($user);
+        }
+    }
+
+    /**
      * Delete personal data for the user in a list of contexts.
      *
      * @param approved_contextlist $contextlist List of contexts to delete data from.
@@ -101,7 +123,7 @@ class provider implements
         }
 
         $user = $contextlist->get_user();
-        unset_user_preference('repository_github_username', $user);
+        delete_user_data($user);
     }
 
     /**
@@ -117,5 +139,14 @@ class provider implements
             writer::export_user_preference('repository_github', 'repository_github_username', $username,
                 get_string('privacy:metadata:preference:username', 'repository_github'));
         }
+    }
+
+    /**
+     * This does the deletion of user data for the github repository.
+     *
+     * @param  stdclass $user The user to delete data.
+     */
+    protected static function delete_user_data(\stdClass $user) {
+        unset_user_preference('repository_github_username', $user);
     }
 }
