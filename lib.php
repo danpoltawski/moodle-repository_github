@@ -258,7 +258,7 @@ class repository_github extends repository {
         $fp = fopen($path, 'w');
         $c = new curl();
         $c->setopt(array('CURLOPT_FOLLOWLOCATION' => true, 'CURLOPT_MAXREDIRS' => 3));
-        $result = $c->download(array(array('url' => $url, 'file'=> $fp)));
+        $result = $c->download_one($url, null, ['file' => $fp]);
 
         // Close file handler.
         fclose($fp);
